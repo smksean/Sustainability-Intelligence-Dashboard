@@ -1,0 +1,43 @@
+{
+  "name": "nexus-sustainability-intelligence",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nexus - Sustainability Intelligence Platform for Energy Companies",
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:backend\"",
+    "build": "next build --turbopack",
+    "build:backend": "cd backend && npm run build",
+    "build:all": "npm run build:backend && npm run build",
+    "start": "next start",
+    "start:backend": "cd backend && npm start",
+    "lint": "eslint",
+    "simulate": "python -m simulator.simulate",
+    "simulate:continuous": "python -m simulator.simulate continuous"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.58.0",
+    "next": "15.5.4",
+    "plotly.js": "^3.1.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-plotly.js": "^2.6.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/react-plotly.js": "^2.6.3",
+    "concurrently": "^8.2.2",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
