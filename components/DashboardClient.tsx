@@ -5,6 +5,7 @@ import { ChartCO2 } from '@/components/ChartCO2'
 import { ChartMix } from '@/components/ChartMix'
 import { KPICards } from '@/components/KPICards'
 import { GoalTracker } from '@/components/GoalTracker'
+import { CurrentMixPieChart } from '@/components/CurrentMixPieChart'
 import { computeGoalTracker } from '@/lib/goal_tracker'
 
 export function DashboardClient() {
@@ -194,7 +195,7 @@ export function DashboardClient() {
             </div>
           </div>
 
-          {/* Current Mix Pie Chart Placeholder */}
+          {/* Current Mix Pie Chart */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
             <div className="mb-4">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -205,15 +206,13 @@ export function DashboardClient() {
                 correlates with lower CO₂ intensity.
               </p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-8 text-center">
-              <div className="text-gray-500 text-sm mb-2">
-                Current Mix Pie Chart
-              </div>
-              <div className="text-xs text-gray-400">
-                (Pie chart component would show current generation breakdown by
-                source)
-              </div>
-            </div>
+            <CurrentMixPieChart data={mix.length > 0 ? mix[mix.length - 1] : {
+              hydro_mw: 0,
+              wind_mw: 0,
+              solar_mw: 0,
+              nuclear_mw: 0,
+              fossil_mw: 0
+            }} />
             <div className="mt-4 p-4 bg-purple-50 rounded-lg">
               <details className="group">
                 <summary className="cursor-pointer text-sm font-medium text-gray-900 hover:text-purple-600">
