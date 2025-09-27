@@ -34,12 +34,12 @@ export function CurrentMixPieChart({ data }: CurrentMixPieChartProps) {
     {
       values: [hydro_mw, wind_mw, solar_mw, nuclear_mw, fossil_mw],
       labels: ['Hydro', 'Wind', 'Solar', 'Nuclear', 'Fossil'],
-      type: 'pie',
+      type: 'pie' as const,
       marker: {
         colors: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444']
       },
-      textinfo: 'label+percent',
-      textposition: 'outside',
+      textinfo: 'label+percent' as const,
+      textposition: 'outside' as const,
       hovertemplate: '<b>%{label}</b><br>' +
                     'Power: %{value:.1f} MW<br>' +
                     'Percentage: %{percent}<br>' +
