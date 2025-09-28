@@ -14,14 +14,23 @@ export function DashboardClient() {
 	const [netZero, setNetZero] = useState<NetZeroRow[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+	const [isUpdating, setIsUpdating] = useState(false);
+	const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('connected');
 
 	const fetchData = async () => {
 		try {
+			setIsUpdating(true);
 			const [co2Data, mixData, netZeroData] = await Promise.all([
 				fetchCo2(96), 
 				fetchMix(96),
 				fetchNetZero(100)
 			]);
+			
+			// Check if we got new data
+			const hasNewData = co2Data.length > 0 && (
+				co2.length === 0 || 
+				co2Data[co2Data.length - 1]?.timestamp !== co2[co2.length - 1]?.timestamp
+			);
 			
 			// Debug logging
 			console.log('Fetched data:', {
@@ -29,17 +38,22 @@ export function DashboardClient() {
 				latestCo2: co2Data[co2Data.length - 1],
 				mixCount: mixData.length,
 				latestMix: mixData[mixData.length - 1],
-				netZeroCount: netZeroData.length
+				netZeroCount: netZeroData.length,
+				hasNewData,
+				timestamp: new Date().toISOString()
 			});
 			
 			setCo2(co2Data);
 			setMix(mixData);
 			setNetZero(netZeroData);
 			setLastUpdate(new Date());
+			setConnectionStatus('connected');
 		} catch (error) {
 			console.error('Error fetching data:', error);
+			setConnectionStatus('error');
 		} finally {
 			setLoading(false);
+			setIsUpdating(false);
 		}
 	};
 
@@ -47,8 +61,8 @@ export function DashboardClient() {
 		// Initial data fetch
 		fetchData();
 		
-		// Set up interval to fetch data every 10 seconds
-		const interval = setInterval(fetchData, 10000);
+		// Set up interval to fetch data every 5 seconds for more real-time feel
+		const interval = setInterval(fetchData, 5000);
 		
 		return () => clearInterval(interval);
 	}, []);
@@ -84,12 +98,33 @@ export function DashboardClient() {
               metrics can improve transparency and compliance readiness
               (CSRD/ESRS, EU ETS MRV).
             </p>
-            <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                Live Data
+            
+            {/* Real-time Status Indicator */}
+            <div className="flex items-center justify-center space-x-4 mb-4">
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${
+                  connectionStatus === 'connected' ? 'bg-green-500' : 
+                  connectionStatus === 'error' ? 'bg-red-500' : 'bg-yellow-500'
+                } ${isUpdating ? 'animate-pulse' : ''}`}></div>
+                <span className="text-sm text-gray-600">
+                  {connectionStatus === 'connected' ? 'Live Data' : 
+                   connectionStatus === 'error' ? 'Connection Error' : 'Connecting...'}
+                </span>
               </div>
-              <div>Last updated: {lastUpdate.toLocaleTimeString()}</div>
+              
+              <div className="text-xs text-gray-500">
+                Last updated: {lastUpdate.toLocaleTimeString()}
+              </div>
+              
+              {isUpdating && (
+                <div className="flex items-center space-x-1">
+                  <div className="animate-spin rounded-full h-3 w-3 border border-blue-600 border-t-transparent"></div>
+                  <span className="text-xs text-blue-600">Updating...</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
               <button
                 onClick={fetchData}
                 className="text-green-600 hover:text-green-700 font-medium"
@@ -103,7 +138,7 @@ export function DashboardClient() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* KPI Cards */}
-        <KPICards co2Data={co2} mixData={mix} netZeroData={netZero} />
+        <KPICards co2Data={co2} mixData={mix} netZeroData={netZero} isUpdating={isUpdating} />
 
         {/* Goal Tracker Section */}
         {!goalTrackerData.error && (

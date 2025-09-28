@@ -1,17 +1,23 @@
 "use client";
 import { Co2Row, MixRow, NetZeroRow } from '@/lib/fetch';
+import { DataChangeIndicator } from './DataChangeIndicator';
 
 interface KPICardsProps {
   co2Data: Co2Row[];
   mixData: MixRow[];
   netZeroData: NetZeroRow[];
+  isUpdating?: boolean;
 }
 
-export function KPICards({ co2Data, mixData, netZeroData }: KPICardsProps) {
+export function KPICards({ co2Data, mixData, netZeroData, isUpdating = false }: KPICardsProps) {
   // Calculate current values
   const currentCo2 = co2Data.length > 0 ? co2Data[co2Data.length - 1]?.co2_intensity_g_per_kwh : 0;
   const currentRenewableShare = mixData.length > 0 ? mixData[mixData.length - 1]?.renewable_share_pct : 0;
   const latestAlignment = netZeroData.length > 0 ? netZeroData[netZeroData.length - 1]?.alignment_pct : 0;
+  
+  // Calculate previous values for change indicators
+  const previousCo2 = co2Data.length > 1 ? co2Data[co2Data.length - 2]?.co2_intensity_g_per_kwh : currentCo2;
+  const previousRenewableShare = mixData.length > 1 ? mixData[mixData.length - 2]?.renewable_share_pct : currentRenewableShare;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -25,7 +31,16 @@ export function KPICards({ co2Data, mixData, netZeroData }: KPICardsProps) {
         <div className="text-3xl font-bold text-gray-900 mb-2">
           {currentCo2.toFixed(1)} g/kWh
         </div>
-        <div className="text-sm font-medium text-gray-900 mb-1">CO₂ Intensity</div>
+        <div className="text-sm font-medium text-gray-900 mb-1 flex items-center justify-center gap-2">
+          CO₂ Intensity
+          <DataChangeIndicator
+            currentValue={currentCo2}
+            previousValue={previousCo2}
+            unit="g/kWh"
+            label="CO₂ Intensity"
+            isUpdating={isUpdating}
+          />
+        </div>
         <div className="text-xs text-gray-500">
           Current carbon emissions per unit of electricity generated
         </div>
@@ -41,7 +56,16 @@ export function KPICards({ co2Data, mixData, netZeroData }: KPICardsProps) {
         <div className="text-3xl font-bold text-gray-900 mb-2">
           {currentRenewableShare.toFixed(1)}%
         </div>
-        <div className="text-sm font-medium text-gray-900 mb-1">Renewable Share</div>
+        <div className="text-sm font-medium text-gray-900 mb-1 flex items-center justify-center gap-2">
+          Renewable Share
+          <DataChangeIndicator
+            currentValue={currentRenewableShare}
+            previousValue={previousRenewableShare}
+            unit="%"
+            label="Renewable Share"
+            isUpdating={isUpdating}
+          />
+        </div>
         <div className="text-xs text-gray-500">
           Percentage of generation from renewable sources
         </div>
