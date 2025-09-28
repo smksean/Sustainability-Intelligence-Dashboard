@@ -50,10 +50,10 @@ export function CurrentMixPieChart({ data }: CurrentMixPieChartProps) {
   const layout = {
     showlegend: true,
     legend: {
-      orientation: 'h',
+      orientation: 'h' as const,
       y: -0.1,
       x: 0.5,
-      xanchor: 'center'
+      xanchor: 'center' as const
     },
     margin: { t: 20, b: 40, l: 20, r: 20 },
     height: 400,
