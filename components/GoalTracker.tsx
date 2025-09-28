@@ -1,11 +1,18 @@
 "use client";
 import { GoalTrackerData } from '@/lib/goal_tracker';
+import { TargetEmissionsChart } from './TargetEmissionsChart';
 
 interface GoalTrackerProps {
   data: GoalTrackerData;
+  netZeroData?: Array<{
+    year: number;
+    actual_emissions_mt: number;
+    target_emissions_mt: number;
+    alignment_pct: number;
+  }>;
 }
 
-export function GoalTracker({ data }: GoalTrackerProps) {
+export function GoalTracker({ data, netZeroData }: GoalTrackerProps) {
   if (data.error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -90,14 +97,9 @@ export function GoalTracker({ data }: GoalTrackerProps) {
               )}
             </div>
 
-            {/* Pathway Chart Placeholder */}
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
-              <div className="text-gray-500 text-sm">
-                Target emissions pathway visualization
-              </div>
-              <div className="text-xs text-gray-400 mt-1">
-                (Chart component would go here)
-              </div>
+            {/* Target Emissions Chart */}
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <TargetEmissionsChart netZeroData={netZeroData || []} />
             </div>
           </div>
         </div>

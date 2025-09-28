@@ -143,7 +143,7 @@ export function DashboardClient() {
         {/* Goal Tracker Section */}
         {!goalTrackerData.error && (
           <div className="mb-8">
-            <GoalTracker data={goalTrackerData} />
+            <GoalTracker data={goalTrackerData} netZeroData={netZero} />
           </div>
         )}
 
