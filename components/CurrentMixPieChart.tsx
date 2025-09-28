@@ -1,5 +1,4 @@
 "use client";
-import Plot from 'react-plotly.js';
 
 interface CurrentMixPieChartProps {
   data: {
@@ -13,10 +12,10 @@ interface CurrentMixPieChartProps {
 
 export function CurrentMixPieChart({ data }: CurrentMixPieChartProps) {
   const { hydro_mw, wind_mw, solar_mw, nuclear_mw, fossil_mw } = data;
-  
+
   // Calculate total for percentages
   const total = hydro_mw + wind_mw + solar_mw + nuclear_mw + fossil_mw;
-  
+
   if (total === 0) {
     return (
       <div className="bg-gray-50 rounded-lg p-8 text-center">
@@ -30,52 +29,87 @@ export function CurrentMixPieChart({ data }: CurrentMixPieChartProps) {
     );
   }
 
-  const plotData = [
-    {
-      values: [hydro_mw, wind_mw, solar_mw, nuclear_mw, fossil_mw],
-      labels: ['Hydro', 'Wind', 'Solar', 'Nuclear', 'Fossil'],
-      type: 'pie' as const,
-      marker: {
-        colors: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444']
-      },
-      textinfo: 'label+percent' as const,
-      textposition: 'outside' as const,
-      hovertemplate: '<b>%{label}</b><br>' +
-                    'Power: %{value:.1f} MW<br>' +
-                    'Percentage: %{percent}<br>' +
-                    '<extra></extra>'
-    }
+  // Calculate percentages
+  const hydroPercent = (hydro_mw / total) * 100;
+  const windPercent = (wind_mw / total) * 100;
+  const solarPercent = (solar_mw / total) * 100;
+  const nuclearPercent = (nuclear_mw / total) * 100;
+  const fossilPercent = (fossil_mw / total) * 100;
+
+  // Calculate cumulative percentages for CSS conic-gradient
+  let cumulative = 0;
+  const hydroStart = cumulative;
+  cumulative += hydroPercent;
+  const windStart = cumulative;
+  cumulative += windPercent;
+  const solarStart = cumulative;
+  cumulative += solarPercent;
+  const nuclearStart = cumulative;
+  cumulative += nuclearPercent;
+  const fossilStart = cumulative;
+
+  const pieStyle = {
+    background: `conic-gradient(
+      #3B82F6 0deg ${hydroStart * 3.6}deg,
+      #10B981 ${hydroStart * 3.6}deg ${windStart * 3.6}deg,
+      #F59E0B ${windStart * 3.6}deg ${solarStart * 3.6}deg,
+      #8B5CF6 ${solarStart * 3.6}deg ${nuclearStart * 3.6}deg,
+      #EF4444 ${nuclearStart * 3.6}deg ${fossilStart * 3.6}deg
+    )`
+  };
+
+  const legendItems = [
+    { label: 'Hydro', value: hydro_mw, percent: hydroPercent, color: '#3B82F6' },
+    { label: 'Wind', value: wind_mw, percent: windPercent, color: '#10B981' },
+    { label: 'Solar', value: solar_mw, percent: solarPercent, color: '#F59E0B' },
+    { label: 'Nuclear', value: nuclear_mw, percent: nuclearPercent, color: '#8B5CF6' },
+    { label: 'Fossil', value: fossil_mw, percent: fossilPercent, color: '#EF4444' }
   ];
-
-  const layout = {
-    showlegend: true,
-    legend: {
-      orientation: 'h' as const,
-      y: -0.1,
-      x: 0.5,
-      xanchor: 'center' as const
-    },
-    margin: { t: 20, b: 40, l: 20, r: 20 },
-    height: 400,
-    font: {
-      family: 'Inter, system-ui, sans-serif',
-      size: 12
-    }
-  };
-
-  const config = {
-    displayModeBar: false,
-    responsive: true
-  };
 
   return (
     <div className="w-full">
-      <Plot
-        data={plotData}
-        layout={layout}
-        config={config}
-        style={{ width: '100%', height: '100%' }}
-      />
+      {/* Pie Chart */}
+      <div className="flex justify-center mb-6">
+        <div 
+          className="w-64 h-64 rounded-full border-4 border-white shadow-lg"
+          style={pieStyle}
+        />
+      </div>
+
+      {/* Legend */}
+      <div className="grid grid-cols-1 gap-2">
+        {legendItems.map((item) => (
+          <div key={item.label} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+            <div className="flex items-center">
+              <div 
+                className="w-4 h-4 rounded mr-3"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-sm font-medium text-gray-700">
+                {item.label}
+              </span>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900">
+                {item.value.toFixed(1)} MW
+              </div>
+              <div className="text-xs text-gray-500">
+                {item.percent.toFixed(1)}%
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Total */}
+      <div className="mt-4 p-3 bg-blue-50 rounded-lg text-center">
+        <div className="text-sm text-blue-600 font-medium">
+          Total Generation
+        </div>
+        <div className="text-lg font-bold text-blue-900">
+          {total.toFixed(1)} MW
+        </div>
+      </div>
     </div>
   );
 }
